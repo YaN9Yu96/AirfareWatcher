@@ -82,7 +82,9 @@ class Checker:
                     price = int(
                         content.xpath(
                             './/div[@class="head-prices" and @data-v-55ab452e]//strong/em/text()'
-                        )[0][1:]# 去掉第一个币种符号
+                        )[0][
+                            1:
+                        ]  # 去掉第一个币种符号
                     )
                     start_time = content.xpath(
                         './/div[@class="f-startTime f-times-con" and @data-v-55ab452e]/strong/text()'
@@ -99,21 +101,21 @@ class Checker:
                 except Exception as e:
                     print(f"错误：{e}")
 
-                print(
-                    f"{flight_name} {start_airport}-{end_airport}({start_time}-{end_time}) {date} 当前价格{price}"
-                )
+                content = f"{flight_name} {start_airport}-{end_airport}({start_time}-{end_time}) {date} 当前价格{price}"
+                print(content)
 
                 # 判断是否监视该航班并检查是否低于用户设定的价格
                 check_all = self.flights[0] == ""
                 for flight in self.flights:
                     if check_all or flight_name in flight:
                         if price < self.price:
-                            self.on_target_price()
+                            self.on_target_price(content)
             time.sleep(random.uniform(0.5, 1.5))
 
-    def on_target_price(self):
+    def on_target_price(self, content):
         self.play_sound()
-        self.show_notification("机票监测", "航班的票价已低于设定值！")
+        self.write_history(content)
+        self.show_notification("机票监测", f"航班的票价已低于设定值！{content}")
         print(f"{Fore.RED}航班的票价已低于设定值！{Style.RESET_ALL}")
 
     def play_sound(self):
@@ -124,6 +126,21 @@ class Checker:
 
     def show_notification(self, title, message):
         notification.notify(title=title, message=message, timeout=10)
+
+    def write_history(self, content):
+        path = os.path.join(FILE_PATH, "history.txt")
+        with open(path, "a+") as file:
+            # 移动到文件末尾
+            file.seek(0, os.SEEK_END)
+            # 如果文件不为空，添加换行符
+            if file.tell() > 0:
+                file.write("\n")
+
+            # 获取当前时间戳
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+            # 写入时间戳到文件
+            file.write(f"{timestamp} {content}")
 
 
 if __name__ == "__main__":
