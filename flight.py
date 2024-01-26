@@ -38,6 +38,9 @@ class Checker:
         self.interval = float(self.get_or_input("interval", PROMPT_INTERVAL))
 
         print("已完成配置，开始监测...")
+        print(f"如有需要, 可确认以下网址是否正常加载, 避免配置有误:")
+        for date in self.dates:
+            print(self.get_airfare_url(date))
 
     def get_or_input(self, key, prompt):
         section = "Settings"
@@ -64,9 +67,12 @@ class Checker:
             value = modify_value(f"{prompt}\n输入后按回车键确认:")
             return value
 
+    def get_airfare_url(self, date):
+        return f"https://www.ly.com/flights/itinerary/oneway/{self.from_airport}-{self.to_airport}?date={date}"
+
     def check_tongcheng(self):
         for date in self.dates:
-            url = f"https://www.ly.com/flights/itinerary/oneway/{self.from_airport}-{self.to_airport}?date={date}"
+            url = self.get_airfare_url(date)
             response = get_url(url)
             if not response:
                 print(f"连接超时，航班信息查询失败")
