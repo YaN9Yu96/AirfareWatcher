@@ -26,8 +26,8 @@ class Checker:
 
     def run(self):
         # 使用之前的配置或询问用户输入
-        self.from_airport = self.get_or_input("from_airport", "起飞机场IATA代码")
-        self.to_airport = self.get_or_input("to_airport", "降落机场IATA代码")
+        self.from_airport = self.get_or_input("from_airport", "起飞机场IATA代码", "例如深圳宝安机场对应SZX，成都双流机场对应CTU")
+        self.to_airport = self.get_or_input("to_airport", "降落机场IATA代码", "例如深圳宝安机场对应SZX，成都双流机场对应CTU")
         self.dates = self.get_or_input("datas", "飞行日期","（格式yyyy-mm-dd，多个日期用逗号分隔）").split(",")
         self.flights = self.get_or_input("flights", "需要查询的航班号","（留空时表示监测全部，多个航班用逗号分隔）").split(",")
         self.price = int(self.get_or_input("price", "监测票价","（当票价低于该设定时进行提醒）"))
@@ -44,6 +44,8 @@ class Checker:
 
         def modify_value(prompt, current_value=""):
             new_value = simpledialog.askstring("配置", prompt,initialvalue=current_value)
+            if new_value is None:
+                new_value = ""
             config.set(section, key, new_value)
             with open(CONFIG_FILENAME, "w") as configfile:
                 config.write(configfile)
